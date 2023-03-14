@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b151b8c111d286743b1cfbc40d0f628a, type: 3}
+  m_Name: Game Settings
+  m_EditorClassIdentifier: 
+  PlayerCameraVisual: {fileID: 4656809260884403503, guid: b6961c49945d6974984552e889b2e03a, type: 3}
+  ProjectileVisual: {fileID: 5120595670762057215, guid: bdf9dc03ad4566d4dbfb31c0bd7425d5, type: 3}
+  PlayerVisual: {fileID: 271550317347492275, guid: 38854b7845a1e4d428de0de84cb68e6e, type: 3}
+  EnemyVisual: {fileID: 5548657309604602705, guid: dc393fcc3b8a3f84dba513cffed7bef1, type: 3}
+  CharacterRadius: 0.5
+  CameraDistance: 12.5
+  CameraAngle: 67.5
+  CameraSmoothTime: 50
+  CameraLazyRectWidth: 4
+  CameraLazyRectDepth: 2
+  ProjectileSpeed: 8
+  ProjectileRadius: 0.5
+  ProjectileImpactForce: 2
+  ProjectileDamage: 1
+  PlayerShootTime: 0.125
+  ProjectileOffsetFromPlayer: 0.5
+  PlayerSnapLookAngleToMoveAngleAfterShootTime: 1
+  PlayerShootSpreadAngle: 5
+  EnemyFlockRepulseMaxDistance: 2
+  EnemyFlockRepulseMaxMagnitude: 5
+  EnemyFlockProjectileRepulseMaxDistance: 2
+  EnemyFlockProjectileRepulseMaxMagnitude: 100
+  EnemyAvoidFoeDistance: 6
+  EnemyAvoidFoeMaxMagnitude: 5
+  PlayerCharacterConfig: {fileID: 11400000, guid: 947496dadd2ec584db8b5973a36cd41e, type: 2}
+  EnemyCharacterConfig: {fileID: 11400000, guid: 07f5bf1c2fc2846468d0817ca461e1bd, type: 2}
+  PlayerSnapLookAngleToMoveAngleAfterShootTicks: 30
+  PlayerShootSpreadAngleHalf: 2.5
