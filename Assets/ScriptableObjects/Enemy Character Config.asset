@@ -15,5 +15,5 @@ MonoBehaviour:
   Acceleration: 10
   Drag: 0.75
   ShootTime: 1
-  Health: 3
+  Health: 1
   ShootTicks: 30

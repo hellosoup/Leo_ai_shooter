@@ -17,7 +17,7 @@ MonoBehaviour:
   PlayerVisual: {fileID: 271550317347492275, guid: 38854b7845a1e4d428de0de84cb68e6e, type: 3}
   EnemyVisual: {fileID: 5548657309604602705, guid: dc393fcc3b8a3f84dba513cffed7bef1, type: 3}
   CharacterRadius: 0.5
-  CameraDistance: 12.5
+  CameraDistance: 18.39
   CameraAngle: 67.5
   CameraSmoothTime: 50
   CameraLazyRectWidth: 4
