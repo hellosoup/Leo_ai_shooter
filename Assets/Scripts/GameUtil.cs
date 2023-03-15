@@ -38,7 +38,7 @@ public static class GameUtil
         return true;
     }
 
-    public static void CreatePlayerCamera(GameSettings settings, GameData data)
+    public static void CreatePlayerCamera(GameSettings settings, GameData data, in Vector3 position)
     {
         if (data.Stage.PlayerCameraVisualPool.Count == 0 || data.Stage.PlayerCameras.Count >= data.Stage.PlayerCameras.Capacity)
             return;
@@ -47,6 +47,7 @@ public static class GameUtil
         ref PlayerCamera camera = ref data.Stage.PlayerCameras[data.Stage.PlayerCameras.Count - 1];
         camera.Visual = data.Stage.PlayerCameraVisualPool.Dequeue();
         camera.Visual.gameObject.SetActive(true);
+        camera.Visual.transform.position = position;
     }
 
     public static void CreateEnemy(GameSettings settings, GameData data, in Vector3 position)
@@ -493,6 +494,8 @@ public static class GameUtil
     {
         foreach (ref PlayerCamera camera in data.Stage.PlayerCameras.AsSpan())
         {
+            camera.Visual.transform.rotation = Quaternion.AngleAxis(settings.CameraAngle, Vector3.right);
+
             if (data.Stage.FindCharacter(camera.CharacterId, out FixedIterator<Character> iterator))
             {
                 ref Character character = ref iterator.Value;
@@ -524,8 +527,6 @@ public static class GameUtil
 
                 // Transform camera
                 {
-                    camera.Visual.transform.rotation = Quaternion.AngleAxis(settings.CameraAngle, Vector3.right);
-
                     float xDiff = (character.CurrPosition.x - camera.TargetPosition.x);
                     float zDiff = (character.CurrPosition.z - camera.TargetPosition.z);
                     float xDist = Mathf.Abs(xDiff);
@@ -640,6 +641,6 @@ public static class GameUtil
     {
         SetGameState(data, GameStateType.TransitionInToAwaitGameStart);
         data.Stage.Hud.GameStart.SetActive(true);
-        CreatePlayerCamera(settings, data);
+        CreatePlayerCamera(settings, data, data.Stage.ArenaVisual.CameraSpawnPoint.transform.position);
     }
 }
