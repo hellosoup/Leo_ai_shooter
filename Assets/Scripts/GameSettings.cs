@@ -12,6 +12,7 @@ public class GameSettings : ScriptableObject
     public CharacterConfig PlayerCharacterConfig;
     public CharacterConfig EnemyCharacterConfig;
     public float CharacterRadius = 0.5f;
+    public float CharacterRotateTime = 0.25f;
     public float CameraDistance = 10.0f;
     public float CameraAngle = 67.5f;
     public float CameraSmoothTime = 50.0f;
@@ -21,7 +22,6 @@ public class GameSettings : ScriptableObject
     public float ProjectileRadius = 0.25f;
     public float ProjectileImpactForce = 1.0f;
     public int ProjectileDamage = 1;
-    public float PlayerShootTime = 0.5f;
     public float ProjectileOffsetFromPlayer = 0.5f;
     public float PlayerSnapLookAngleToMoveAngleAfterShootTime = 1.0f;
     public float PlayerShootSpreadAngle = 5.0f;
