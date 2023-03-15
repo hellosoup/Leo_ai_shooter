@@ -82,6 +82,19 @@ public static class GameUtil
         projectile.Visual.gameObject.SetActive(true);
     }
 
+    public static void CreateExplosion(GameData data, in Vector3 position)
+    {
+        if (data.Stage.ExplosionVisualPool.Count == 0 || data.Stage.Explosions.Count >= data.Stage.Explosions.Capacity)
+            return;
+
+        data.Stage.Explosions.Add(new Explosion());
+        ref Explosion explosion = ref data.Stage.Explosions[data.Stage.Explosions.Count - 1];
+
+        explosion.Visual = data.Stage.ExplosionVisualPool.Dequeue();
+        explosion.Visual.transform.position = position;
+        explosion.Visual.gameObject.SetActive(true);
+    }
+
     public static void TickCharacters(GameSettings settings, GameData data)
     {
         // Accept input
@@ -257,6 +270,8 @@ public static class GameUtil
                 {
                     enemyCharacter.Remove = true;
                     enemy.Remove = true;
+                    Vector3 explosionPosition = new Vector3(enemyCharacter.PrevPosition.x, enemyCharacter.PrevPosition.y + settings.EnemyDeathExplosionOffsetY, enemyCharacter.PrevPosition.z);
+                    CreateExplosion(data, explosionPosition);
                 }
             }
         }
@@ -316,6 +331,20 @@ public static class GameUtil
             {
                 projectile.Visual.gameObject.SetActive(false);
                 data.Stage.ProjectileVisualPool.Enqueue(projectile.Visual);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public static void TickExplosions(GameSettings settings, GameData data)
+    {
+        data.Stage.Explosions.RemoveAll(data, static (GameData data, ref Explosion explosion) =>
+        {
+            if (!explosion.Visual.ParticleSystem.IsAlive(true))
+            {
+                explosion.Visual.gameObject.SetActive(false);
+                data.Stage.ExplosionVisualPool.Enqueue(explosion.Visual);
                 return true;
             }
             return false;
@@ -487,14 +516,17 @@ public static class GameUtil
                 player.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
                 RotateTransformUsingCharacter(player.Visual.transform, character, frameT);
 
-                Vector2 forward = character.InputLook;
+                Vector2 forward = new Vector2(Mathf.Cos(character.CurrLookAngle), Mathf.Sin(character.CurrLookAngle));
                 Vector2 right = new Vector2(forward.y, -forward.x);
-                float localZ = Vector2.Dot(character.Velocity.GetV2(), forward);
-                float localX = Vector2.Dot(character.Velocity.GetV2(), right);
+                Vector2 velocity = character.Velocity.GetV2();
+                float localZ = Vector2.Dot(velocity, forward) * settings.PlayerRunAnimationAmplitude;
+                float localX = Vector2.Dot(velocity, right) * settings.PlayerRunAnimationAmplitude;
+
+                Debug.Log($"f: {forward}, v: {velocity}");
 
                 player.Visual.Animator.SetFloat(PlayerAnimatorHash_X, localX, settings.PlayeRunAnimationDampTime, Time.deltaTime);
                 player.Visual.Animator.SetFloat(PlayerAnimatorHash_Z, localZ, settings.PlayeRunAnimationDampTime, Time.deltaTime);
-                player.Visual.Animator.speed = character.Velocity.magnitude * settings.PlayerRunAnimationSpeed;
+                player.Visual.Animator.speed = settings.PlayerRunAnimationSpeed;
             }
         }
     }

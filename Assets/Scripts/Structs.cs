@@ -16,11 +16,13 @@ public class StageData : IDisposable
     public Queue<PlayerVisual> PlayerVisualPool = new Queue<PlayerVisual>(GameConstant.MaxPlayers);
     public Queue<EnemyVisual> EnemyVisualPool = new Queue<EnemyVisual>(GameConstant.MaxEnemies);
     public Queue<ProjectileVisual> ProjectileVisualPool = new Queue<ProjectileVisual>(GameConstant.MaxProjectiles);
+    public Queue<ExplosionVisual> ExplosionVisualPool = new Queue<ExplosionVisual>(GameConstant.MaxExplosions);
     public FixedList<PlayerCamera> PlayerCameras = new FixedList<PlayerCamera>(GameConstant.MaxPlayers);
     public FixedList<Character> Characters = new FixedList<Character>(GameConstant.MaxCharacters);
     public FixedList<Player> Players = new FixedList<Player>(GameConstant.MaxPlayers);
     public FixedList<Enemy> Enemies = new FixedList<Enemy>(GameConstant.MaxEnemies);
     public FixedList<Projectile> Projectiles = new FixedList<Projectile>(GameConstant.MaxProjectiles);
+    public FixedList<Explosion> Explosions = new FixedList<Explosion>(GameConstant.MaxExplosions);
     public Queue<string> Messages = new Queue<string>(GameConstant.MessagesCapacity);
 
     public GameStateType GameState;
@@ -71,6 +73,13 @@ public class StageData : IDisposable
             var visual = UnityEngine.Object.Instantiate(settings.ProjectileVisual, Root);
             visual.gameObject.SetActive(false);
             ProjectileVisualPool.Enqueue(visual);
+        }
+
+        while (ExplosionVisualPool.Count < GameConstant.MaxExplosions)
+        {
+            var visual = UnityEngine.Object.Instantiate(settings.ExplosionVisual, Root);
+            visual.gameObject.SetActive(false);
+            ExplosionVisualPool.Enqueue(visual);
         }
     }
 
@@ -123,6 +132,11 @@ public struct Projectile
     public ProjectileVisual Visual;
     public TeamType Team;
     public bool Remove;
+}
+
+public struct Explosion
+{
+    public ExplosionVisual Visual;
 }
 
 public struct Player

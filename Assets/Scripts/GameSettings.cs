@@ -9,6 +9,7 @@ public class GameSettings : ScriptableObject
     public PlayerVisual PlayerVisual;
     public EnemyVisual EnemyVisual;
     public HudVisual HudVisual;
+    public ExplosionVisual ExplosionVisual;
     public CharacterConfig PlayerCharacterConfig;
     public CharacterConfig EnemyCharacterConfig;
     public float CharacterRadius = 0.5f;
@@ -26,6 +27,7 @@ public class GameSettings : ScriptableObject
     public float PlayerSnapLookAngleToMoveAngleAfterShootTime = 1.0f;
     public float PlayerShootSpreadAngle = 5.0f;
     public float PlayerRunAnimationSpeed = 0.1f;
+    public float PlayerRunAnimationAmplitude = 1.0f;
     public float PlayeRunAnimationDampTime = 0.125f;
     public float EnemyFlockRepulseMaxDistance = 3.0f;
     public float EnemyFlockRepulseMaxMagnitude = 3.0f;
@@ -43,6 +45,7 @@ public class GameSettings : ScriptableObject
     public float GameOverTime = 4.0f;
     public float TransitionTime = 1.0f;
     public float EnemyRunAnimationSpeed = 0.1f;
+    public float EnemyDeathExplosionOffsetY = 0.0f;
 
     [HideInInspector] public long PlayerSnapLookAngleToMoveAngleAfterShootTicks;
     [HideInInspector] public float PlayerShootSpreadAngleHalf;

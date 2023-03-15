@@ -18,6 +18,7 @@ MonoBehaviour:
   PlayerVisual: {fileID: 271550317347492275, guid: 38854b7845a1e4d428de0de84cb68e6e, type: 3}
   EnemyVisual: {fileID: 5548657309604602705, guid: dc393fcc3b8a3f84dba513cffed7bef1, type: 3}
   HudVisual: {fileID: 8473800185678640066, guid: f8713655bc74d3e4da9683c25fb18be0, type: 3}
+  ExplosionVisual: {fileID: -4341961972511555789, guid: 353eb49f21be69b489705da4ec72939d, type: 3}
   PlayerCharacterConfig: {fileID: 11400000, guid: 947496dadd2ec584db8b5973a36cd41e, type: 2}
   EnemyCharacterConfig: {fileID: 11400000, guid: 07f5bf1c2fc2846468d0817ca461e1bd, type: 2}
   CharacterRadius: 1
@@ -34,7 +35,8 @@ MonoBehaviour:
   ProjectileOffsetFromPlayer: {x: -1, y: 2.375, z: 2.5}
   PlayerSnapLookAngleToMoveAngleAfterShootTime: 1
   PlayerShootSpreadAngle: 5
-  PlayerRunAnimationSpeed: 3
+  PlayerRunAnimationSpeed: 1.5
+  PlayerRunAnimationAmplitude: 2
   PlayeRunAnimationDampTime: 0.05
   EnemyFlockRepulseMaxDistance: 5
   EnemyFlockRepulseMaxMagnitude: 1
@@ -52,6 +54,7 @@ MonoBehaviour:
   GameOverTime: 5
   TransitionTime: 2
   EnemyRunAnimationSpeed: 0.125
+  EnemyDeathExplosionOffsetY: 2
   PlayerSnapLookAngleToMoveAngleAfterShootTicks: 30
   PlayerShootSpreadAngleHalf: 2.5
   MessageTicks: 90
