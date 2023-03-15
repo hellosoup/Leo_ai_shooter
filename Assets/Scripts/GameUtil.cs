@@ -281,11 +281,8 @@ public static class GameUtil
         {
             foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
             {
-                float deltaX = (character.CurrPosition.x - projectile.CurrPosition.x);
-                float deltaZ = (character.CurrPosition.z - projectile.CurrPosition.z);
-                float sqDist = (deltaX * deltaX) + (deltaZ * deltaZ);
-                float sqRadii = (settings.ProjectileRadius * settings.ProjectileRadius);
-                if (sqDist < sqRadii && character.Team != projectile.Team)
+                if (character.Team != projectile.Team &&
+                    DoesCapsuleIntersectSphere(projectile.PrevPosition.GetV2(), projectile.CurrPosition.GetV2(), settings.ProjectileRadius, character.CurrPosition.GetV2(), settings.CharacterRadius))
                 {
                     float dirX = Mathf.Cos(projectile.Angle);
                     float dirZ = Mathf.Sin(projectile.Angle);
@@ -642,5 +639,42 @@ public static class GameUtil
         SetGameState(data, GameStateType.TransitionInToAwaitGameStart);
         data.Stage.Hud.GameStart.SetActive(true);
         CreatePlayerCamera(settings, data, data.Stage.ArenaVisual.CameraSpawnPoint.transform.position);
+    }
+
+    public static bool DoesCapsuleIntersectSphere(in Vector2 capsuleA, in Vector2 capsuleB, float capsuleRadius, in Vector2 spherePoint, float sphereRadius)
+    {
+        Vector2 s = spherePoint - capsuleA;
+        Vector2 a = capsuleB - capsuleA;
+        Vector2 b = capsuleB - capsuleA;
+
+        Vector2 dir = b.normalized;
+        float dot = Vector2.Dot(dir, s);
+        float dotClamped = Mathf.Clamp(dot, 0.0f, b.magnitude);
+        Vector2 proj = dotClamped * dir;
+        float distSq = Vector2.SqrMagnitude(proj - s);
+
+        float radii = capsuleRadius + sphereRadius;
+        float radiiSq = radii * radii;
+
+        return (distSq <= radiiSq);
+    }
+
+    public static Vector2 GetV2(in this Vector3 v) => new Vector2(v.x, v.z);
+    public static Vector3 GetV3(in this Vector2 v) => new Vector3(v.x, 0.0f, v.y);
+
+    public static void DrawDebugCircle(in Vector2 position, float radius, in Color color)
+    {
+        Vector2 a = position + new Vector2(radius, 0.0f);
+
+        const int count = 32;
+        const int max = count - 1;
+
+        for (int i = 0; i < count; ++i)
+        {
+            float t = (float)i / max * 2.0f * Mathf.PI;
+            Vector2 b = position + radius * new Vector2(Mathf.Cos(t), Mathf.Sin(t));
+            Debug.DrawLine(a.GetV3(), b.GetV3(), color);
+            a = b;
+        }
     }
 }
