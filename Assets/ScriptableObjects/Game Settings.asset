@@ -20,25 +20,25 @@ MonoBehaviour:
   HudVisual: {fileID: 8473800185678640066, guid: f8713655bc74d3e4da9683c25fb18be0, type: 3}
   PlayerCharacterConfig: {fileID: 11400000, guid: 947496dadd2ec584db8b5973a36cd41e, type: 2}
   EnemyCharacterConfig: {fileID: 11400000, guid: 07f5bf1c2fc2846468d0817ca461e1bd, type: 2}
-  CharacterRadius: 0.5
+  CharacterRadius: 1
+  CharacterRotateTime: 0.05
   CameraDistance: 20.15
   CameraAngle: 67.5
-  CameraSmoothTime: 50
+  CameraSmoothTime: 25
   CameraLazyRectWidth: 4
   CameraLazyRectDepth: 2
-  ProjectileSpeed: 20
-  ProjectileRadius: 0.5
+  ProjectileSpeed: 50
+  ProjectileRadius: 0.125
   ProjectileImpactForce: 2
   ProjectileDamage: 1
-  PlayerShootTime: 0.125
   ProjectileOffsetFromPlayer: 0.5
   PlayerSnapLookAngleToMoveAngleAfterShootTime: 1
   PlayerShootSpreadAngle: 5
-  EnemyFlockRepulseMaxDistance: 2
-  EnemyFlockRepulseMaxMagnitude: 5
-  EnemyFlockProjectileRepulseMaxDistance: 2
-  EnemyFlockProjectileRepulseMaxMagnitude: 100
-  EnemyAvoidFoeDistance: 6
+  EnemyFlockRepulseMaxDistance: 5
+  EnemyFlockRepulseMaxMagnitude: 1
+  EnemyFlockProjectileRepulseMaxDistance: 0
+  EnemyFlockProjectileRepulseMaxMagnitude: 0
+  EnemyAvoidFoeDistance: 0
   EnemyAvoidFoeMaxMagnitude: 5
   InitialEnemyCount: 3
   EnemyCountIncreasePerWave: 2
