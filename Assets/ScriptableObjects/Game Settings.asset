@@ -35,6 +35,7 @@ MonoBehaviour:
   PlayerSnapLookAngleToMoveAngleAfterShootTime: 1
   PlayerShootSpreadAngle: 5
   PlayerRunAnimationSpeed: 3
+  PlayeRunAnimationDampTime: 0.05
   EnemyFlockRepulseMaxDistance: 5
   EnemyFlockRepulseMaxMagnitude: 1
   EnemyFlockProjectileRepulseMaxDistance: 0

@@ -492,8 +492,8 @@ public static class GameUtil
                 float localZ = Vector2.Dot(character.Velocity.GetV2(), forward);
                 float localX = Vector2.Dot(character.Velocity.GetV2(), right);
 
-                player.Visual.Animator.SetFloat(PlayerAnimatorHash_X, localX);
-                player.Visual.Animator.SetFloat(PlayerAnimatorHash_Z, localZ);
+                player.Visual.Animator.SetFloat(PlayerAnimatorHash_X, localX, settings.PlayeRunAnimationDampTime, Time.deltaTime);
+                player.Visual.Animator.SetFloat(PlayerAnimatorHash_Z, localZ, settings.PlayeRunAnimationDampTime, Time.deltaTime);
                 player.Visual.Animator.speed = character.Velocity.magnitude * settings.PlayerRunAnimationSpeed;
             }
         }
