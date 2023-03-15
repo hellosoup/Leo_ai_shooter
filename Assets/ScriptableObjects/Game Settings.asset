@@ -31,7 +31,7 @@ MonoBehaviour:
   ProjectileRadius: 0.125
   ProjectileImpactForce: 2
   ProjectileDamage: 1
-  ProjectileOffsetFromPlayer: 0.5
+  ProjectileOffsetFromPlayer: {x: -1, y: 2.375, z: 2.5}
   PlayerSnapLookAngleToMoveAngleAfterShootTime: 1
   PlayerShootSpreadAngle: 5
   PlayerRunAnimationSpeed: 3

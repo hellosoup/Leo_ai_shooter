@@ -107,9 +107,13 @@ public static class GameUtil
             {
                 character.LastShootTicks = data.Stage.Ticks;
 
-                Vector3 look = new Vector3(Mathf.Cos(character.CurrLookAngle), 0.0f, Mathf.Sin(character.CurrLookAngle));
-                Vector3 projectilePosition = character.CurrPosition + look * settings.ProjectileOffsetFromPlayer;
-                float lookAngle = Mathf.Atan2(look.z, look.x);
+                Vector3 front = new Vector3(Mathf.Cos(character.CurrLookAngle), 0.0f, Mathf.Sin(character.CurrLookAngle));
+                Vector3 right = new Vector3(-front.z, 0.0f, front.x);
+                Vector3 offsetR = right * settings.ProjectileOffsetFromPlayer.x;
+                Vector3 offsetU = Vector3.up * settings.ProjectileOffsetFromPlayer.y;
+                Vector3 offsetF = front * settings.ProjectileOffsetFromPlayer.z;
+                Vector3 projectilePosition = character.CurrPosition + offsetR + offsetU + offsetF;
+                float lookAngle = Mathf.Atan2(front.z, front.x);
 
                 lookAngle += Mathf.Deg2Rad * Mathf.Lerp(-settings.PlayerShootSpreadAngleHalf, +settings.PlayerShootSpreadAngleHalf, (float)data.Stage.Random.NextDouble());
                 CreateProjectile(data, character.Team, projectilePosition, lookAngle);
