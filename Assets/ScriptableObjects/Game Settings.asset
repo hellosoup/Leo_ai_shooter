@@ -49,6 +49,7 @@ MonoBehaviour:
   SpawnClearOfBaddyRadius: 3
   GameOverTime: 5
   TransitionTime: 2
+  EnemyRunAnimationSpeed: 0.25
   PlayerSnapLookAngleToMoveAngleAfterShootTicks: 30
   PlayerShootSpreadAngleHalf: 2.5
   MessageTicks: 90

@@ -41,6 +41,7 @@ public class GameSettings : ScriptableObject
     public float SpawnClearOfBaddyRadius = 5.0f;
     public float GameOverTime = 4.0f;
     public float TransitionTime = 1.0f;
+    public float EnemyRunAnimationSpeed = 0.1f;
 
     [HideInInspector] public long PlayerSnapLookAngleToMoveAngleAfterShootTicks;
     [HideInInspector] public float PlayerShootSpreadAngleHalf;

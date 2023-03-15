@@ -552,7 +552,9 @@ public static class GameUtil
             {
                 ref Character character = ref iterator.Value;
                 enemy.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
-                enemy.Visual.transform.rotation = Quaternion.AngleAxis(270.0f + character.LookAngle * Mathf.Rad2Deg, Vector3.down);
+                if (character.Velocity.magnitude >= 0.005f)
+                    enemy.Visual.transform.rotation = Quaternion.LookRotation(character.Velocity, Vector3.up);
+                enemy.Visual.Animator.speed = character.Velocity.magnitude * settings.EnemyRunAnimationSpeed;
             }
         }
     }
