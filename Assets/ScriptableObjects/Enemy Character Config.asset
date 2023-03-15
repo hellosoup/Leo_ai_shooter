@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51a72b33b536a144083186545b25b99b, type: 3}
   m_Name: Enemy Character Config
   m_EditorClassIdentifier: 
-  Acceleration: 10
+  Acceleration: 20
   Drag: 0.75
-  ShootTime: 1
-  Health: 1
-  ShootTicks: 30
+  ShootTime: 100000
+  Health: 3
+  ShootTicks: 3000000
