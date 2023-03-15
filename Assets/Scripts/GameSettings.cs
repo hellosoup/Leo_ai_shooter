@@ -12,6 +12,7 @@ public class GameSettings : ScriptableObject
     public CharacterConfig PlayerCharacterConfig;
     public CharacterConfig EnemyCharacterConfig;
     public float CharacterRadius = 0.5f;
+    public float CharacterRotateTime = 0.25f;
     public float CameraDistance = 10.0f;
     public float CameraAngle = 67.5f;
     public float CameraSmoothTime = 50.0f;

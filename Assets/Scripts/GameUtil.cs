@@ -85,6 +85,7 @@ public static class GameUtil
         foreach (ref Character character in data.Stage.Characters.AsSpan())
         {
             character.PrevPosition = character.CurrPosition;
+            character.PrevMoveAngle = character.CurrMoveAngle;
 
             if (character.InputMove.sqrMagnitude >= 0.005f)
             {
@@ -97,6 +98,12 @@ public static class GameUtil
 
             if (character.InputLook.sqrMagnitude >= 0.005f)
                 character.LookAngle = Mathf.Atan2(character.InputLook.y, character.InputLook.x);
+
+            if (character.InputMove.sqrMagnitude >= 0.005f)
+            {
+                float targetAngle = Mathf.Atan2(character.InputMove.y, character.InputMove.x) * Mathf.Rad2Deg;
+                character.CurrMoveAngle = Mathf.Deg2Rad * Mathf.SmoothDampAngle(character.CurrMoveAngle * Mathf.Rad2Deg, targetAngle, ref character.MoveAngleVelocity, settings.CharacterRotateTime, Mathf.Infinity, GameConstant.TickTime);
+            }
 
             if (character.InputShoot &&
                 (data.Stage.Ticks - character.LastShootTicks) >= character.Config.ShootTicks)
@@ -268,14 +275,6 @@ public static class GameUtil
 
     public static void TickProjectiles(GameSettings settings, GameData data)
     {
-        // Move projectiles
-        foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
-        {
-            projectile.PrevPosition = projectile.CurrPosition;
-            Vector3 direction = new Vector3(Mathf.Cos(projectile.Angle), 0.0f, Mathf.Sin(projectile.Angle));
-            projectile.CurrPosition += direction * (settings.ProjectileSpeed * GameConstant.TickTime);
-        }
-
         // Collide projectiles with characters
         foreach (ref Character character in data.Stage.Characters.AsSpan())
         {
@@ -292,6 +291,14 @@ public static class GameUtil
                     projectile.Remove = true;
                 }
             }
+        }
+
+        // Move projectiles
+        foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
+        {
+            projectile.PrevPosition = projectile.CurrPosition;
+            Vector3 direction = new Vector3(Mathf.Cos(projectile.Angle), 0.0f, Mathf.Sin(projectile.Angle));
+            projectile.CurrPosition += direction * (settings.ProjectileSpeed * GameConstant.TickTime);
         }
 
         // Age out projectiles
@@ -477,6 +484,7 @@ public static class GameUtil
             {
                 ref Character character = ref iterator.Value;
                 player.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
+                RotateTransformUsingCharacter(player.Visual.transform, character, frameT);
             }
         }
     }
@@ -550,9 +558,8 @@ public static class GameUtil
             {
                 ref Character character = ref iterator.Value;
                 enemy.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
-                if (character.Velocity.magnitude >= 0.005f)
-                    enemy.Visual.transform.rotation = Quaternion.LookRotation(character.Velocity, Vector3.up);
                 enemy.Visual.Animator.speed = character.Velocity.magnitude * settings.EnemyRunAnimationSpeed;
+                RotateTransformUsingCharacter(enemy.Visual.transform, character, frameT);
             }
         }
     }
@@ -676,5 +683,11 @@ public static class GameUtil
             Debug.DrawLine(a.GetV3(), b.GetV3(), color);
             a = b;
         }
+    }
+
+    public static void RotateTransformUsingCharacter(Transform transform, in Character character, float frameT)
+    {
+        float angle = Mathf.LerpAngle(character.PrevMoveAngle, character.CurrMoveAngle, frameT);
+        transform.rotation = Quaternion.AngleAxis(270.0f + angle * Mathf.Rad2Deg, Vector3.down);
     }
 }
