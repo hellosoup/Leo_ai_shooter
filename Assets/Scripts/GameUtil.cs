@@ -1,66 +1,19 @@
 using RTLOL;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameUtil
 {
     public static void IncrementTicks(GameData data)
     {
-        ++data.Ticks;
-    }
-
-    public static void InitRandom(GameData data)
-    {
-        data.Random = new System.Random();
-    }
-
-    public static void InitPlayerCameraVisuals(GameSettings settings, GameData data)
-    {
-        while (data.PlayerCameraVisualPool.Count < GameConstant.MaxPlayers)
-        {
-            var visual = Object.Instantiate(settings.PlayerCameraVisual);
-            visual.gameObject.SetActive(false);
-            data.PlayerCameraVisualPool.Enqueue(visual);
-        }
-    }
-
-    public static void InitPlayerVisuals(GameSettings settings, GameData data)
-    {
-        while (data.PlayerVisualPool.Count < GameConstant.MaxPlayers)
-        {
-            var visual = Object.Instantiate(settings.PlayerVisual);
-            visual.gameObject.SetActive(false);
-            data.PlayerVisualPool.Enqueue(visual);
-        }
-    }
-
-    public static void InitEnemyVisuals(GameSettings settings, GameData data)
-    {
-        while (data.EnemyVisualPool.Count < GameConstant.MaxEnemies)
-        {
-            var visual = Object.Instantiate(settings.EnemyVisual);
-            visual.gameObject.SetActive(false);
-            data.EnemyVisualPool.Enqueue(visual);
-        }
-    }
-
-    public static void InitProjectileVisuals(GameSettings settings, GameData data)
-    {
-        while (data.ProjectileVisualPool.Count < GameConstant.MaxProjectiles)
-        {
-            var visual = Object.Instantiate(settings.ProjectileVisual);
-            visual.gameObject.SetActive(false);
-            data.ProjectileVisualPool.Enqueue(visual);
-        }
+        ++data.Stage.Ticks;
     }
 
     public static CharacterId CreateCharacter(GameSettings settings, GameData data, CharacterConfig config, TeamType team, in Vector3 position)
     {
-        data.Characters.Add(new Character());
-        ref Character character = ref data.Characters[data.Characters.Count - 1];
+        data.Stage.Characters.Add(new Character());
+        ref Character character = ref data.Stage.Characters[data.Stage.Characters.Count - 1];
         character.Config = config;
-        character.Id = new CharacterId { Index = data.NextFreeCharacterId.Index++ };
+        character.Id = new CharacterId { Index = data.Stage.NextFreeCharacterId.Index++ };
         character.Team = team;
         character.Health = config.Health;
         character.PrevPosition = position;
@@ -68,53 +21,67 @@ public static class GameUtil
         return character.Id;
     }
 
-    public static void CreatePlayer(GameSettings settings, GameData data, in Vector3 position)
+    public static bool TryCreatePlayer(GameSettings settings, GameData data, in Vector3 position, out CharacterId characterId)
     {
-        if (data.PlayerVisualPool.Count == 0 || data.PlayerCameraVisualPool.Count == 0 || data.Players.Count >= data.Players.Capacity)
+        if (data.Stage.PlayerVisualPool.Count == 0 || data.Stage.Players.Count >= data.Stage.Players.Capacity)
+        {
+            characterId = default;
+            return false;
+        }
+
+        data.Stage.Players.Add(new Player());
+        ref Player player = ref data.Stage.Players[data.Stage.Players.Count - 1];
+        player.Visual = data.Stage.PlayerVisualPool.Dequeue();
+        player.Visual.gameObject.SetActive(true);
+        player.CharacterId = CreateCharacter(settings, data, settings.PlayerCharacterConfig, TeamType.Goodies, position);
+        characterId = player.CharacterId;
+        return true;
+    }
+
+    public static void CreatePlayerCamera(GameSettings settings, GameData data)
+    {
+        if (data.Stage.PlayerCameraVisualPool.Count == 0 || data.Stage.PlayerCameras.Count >= data.Stage.PlayerCameras.Capacity)
             return;
 
-        data.Players.Add(new Player());
-        ref Player player = ref data.Players[data.Players.Count - 1];
-        player.PlayerVisual = data.PlayerVisualPool.Dequeue();
-        player.CameraVisual = data.PlayerCameraVisualPool.Dequeue();
-        player.PlayerVisual.gameObject.SetActive(true);
-        player.CameraVisual.gameObject.SetActive(true);
-        player.CharacterId = CreateCharacter(settings, data, settings.PlayerCharacterConfig, TeamType.Goodies, position);
+        data.Stage.PlayerCameras.Add(new PlayerCamera());
+        ref PlayerCamera camera = ref data.Stage.PlayerCameras[data.Stage.PlayerCameras.Count - 1];
+        camera.Visual = data.Stage.PlayerCameraVisualPool.Dequeue();
+        camera.Visual.gameObject.SetActive(true);
     }
 
     public static void CreateEnemy(GameSettings settings, GameData data, in Vector3 position)
     {
-        if (data.EnemyVisualPool.Count == 0 || data.Enemies.Count >= data.Enemies.Capacity)
+        if (data.Stage.EnemyVisualPool.Count == 0 || data.Stage.Enemies.Count >= data.Stage.Enemies.Capacity)
             return;
 
-        data.Enemies.Add(new Enemy());
-        ref Enemy enemy = ref data.Enemies[data.Enemies.Count - 1];
-        enemy.Visual = data.EnemyVisualPool.Dequeue();
+        data.Stage.Enemies.Add(new Enemy());
+        ref Enemy enemy = ref data.Stage.Enemies[data.Stage.Enemies.Count - 1];
+        enemy.Visual = data.Stage.EnemyVisualPool.Dequeue();
         enemy.Visual.gameObject.SetActive(true);
         enemy.CharacterId = CreateCharacter(settings, data, settings.EnemyCharacterConfig, TeamType.Baddies, position);
     }
 
     public static void CreateProjectile(GameData data, TeamType team, in Vector3 position, float angle)
     {
-        if (data.ProjectileVisualPool.Count == 0 || data.Projectiles.Count >= data.Projectiles.Capacity)
+        if (data.Stage.ProjectileVisualPool.Count == 0 || data.Stage.Projectiles.Count >= data.Stage.Projectiles.Capacity)
             return;
 
-        data.Projectiles.Add(new Projectile());
-        ref Projectile projectile = ref data.Projectiles[data.Projectiles.Count - 1];
+        data.Stage.Projectiles.Add(new Projectile());
+        ref Projectile projectile = ref data.Stage.Projectiles[data.Stage.Projectiles.Count - 1];
         projectile.PrevPosition = position;
         projectile.CurrPosition = position;
         projectile.Angle = angle;
         projectile.Team = team;
-        projectile.StartTicks = data.Ticks;
+        projectile.StartTicks = data.Stage.Ticks;
 
-        projectile.Visual = data.ProjectileVisualPool.Dequeue();
+        projectile.Visual = data.Stage.ProjectileVisualPool.Dequeue();
         projectile.Visual.gameObject.SetActive(true);
     }
 
     public static void TickCharacters(GameSettings settings, GameData data)
     {
         // Accept input
-        foreach (ref Character character in data.Characters.AsSpan())
+        foreach (ref Character character in data.Stage.Characters.AsSpan())
         {
             character.PrevPosition = character.CurrPosition;
 
@@ -127,26 +94,26 @@ public static class GameUtil
             character.CurrPosition += character.Velocity * GameConstant.TickTime;
             character.Velocity *= character.Config.Drag;
 
+            if (character.InputLook.sqrMagnitude >= 0.005f)
+                character.LookAngle = Mathf.Atan2(character.InputLook.y, character.InputLook.x);
+
             if (character.InputShoot &&
-                (data.Ticks - character.LastShootTicks) >= character.Config.ShootTicks)
+                (data.Stage.Ticks - character.LastShootTicks) >= character.Config.ShootTicks)
             {
-                character.LastShootTicks = data.Ticks;
+                character.LastShootTicks = data.Stage.Ticks;
 
-                Vector3 look = Vector3.right;
-                if (character.InputLook.sqrMagnitude >= 0.005f)
-                    look = new Vector3(character.InputLook.x, 0.0f, character.InputLook.y).normalized;
-
+                Vector3 look = new Vector3(Mathf.Cos(character.LookAngle), 0.0f, Mathf.Sin(character.LookAngle));
                 Vector3 projectilePosition = character.CurrPosition + look * settings.ProjectileOffsetFromPlayer;
                 float lookAngle = Mathf.Atan2(look.z, look.x);
 
-                lookAngle += Mathf.Deg2Rad * Mathf.Lerp(-settings.PlayerShootSpreadAngleHalf, +settings.PlayerShootSpreadAngleHalf, (float)data.Random.NextDouble());
+                lookAngle += Mathf.Deg2Rad * Mathf.Lerp(-settings.PlayerShootSpreadAngleHalf, +settings.PlayerShootSpreadAngleHalf, (float)data.Stage.Random.NextDouble());
                 CreateProjectile(data, character.Team, projectilePosition, lookAngle);
             }
         }
 
         // Run physics
         {
-            var span = data.Characters.AsSpan();
+            var span = data.Stage.Characters.AsSpan();
             for (int a = 0; a < span.Length; ++a)
             {
                 for (int b = (a + 1); b < span.Length; ++b)
@@ -179,14 +146,41 @@ public static class GameUtil
         }
 
         // Remove
-        data.Characters.RemoveAll(character => character.Remove);
+        data.Stage.Characters.RemoveAll(character => character.Remove);
+    }
+
+    public static void TickPlayers(GameSettings settings, GameData data)
+    {
+        foreach (ref Player player in data.Stage.Players.AsSpan())
+        {
+            if (data.Stage.FindCharacter(player.CharacterId, out FixedIterator<Character> found))
+            {
+                ref Character playerCharacter = ref found.Value;
+                if (playerCharacter.Health <= 0)
+                {
+                    player.Remove = true;
+                    playerCharacter.Remove = true;
+                }
+            }
+        }
+
+        data.Stage.Players.RemoveAll(data, static (GameData data, ref Player player) =>
+        {
+            if (player.Remove)
+            {
+                player.Visual.gameObject.SetActive(false);
+                data.Stage.PlayerVisualPool.Enqueue(player.Visual);
+                return true;
+            }
+            return false;
+        });
     }
 
     public static void TickEnemies(GameSettings settings, GameData data)
     {
-        foreach (ref Enemy enemy in data.Enemies.AsSpan())
+        foreach (ref Enemy enemy in data.Stage.Enemies.AsSpan())
         {
-            if (data.FindCharacter(enemy.CharacterId, out FixedIterator<Character> found))
+            if (data.Stage.FindCharacter(enemy.CharacterId, out FixedIterator<Character> found))
             {
                 ref Character enemyCharacter = ref found.Value;
 
@@ -194,7 +188,7 @@ public static class GameUtil
                 enemyCharacter.InputLook = Vector2.zero;
                 enemyCharacter.InputShoot = false;
 
-                foreach (ref Character otherCharacter in data.Characters.AsSpan())
+                foreach (ref Character otherCharacter in data.Stage.Characters.AsSpan())
                 {
                     // Ignore self
                     if (otherCharacter.Id == enemyCharacter.Id)
@@ -232,7 +226,7 @@ public static class GameUtil
                 }
 
                 // Avoid projectiles
-                foreach (ref Projectile projectile in data.Projectiles.AsSpan())
+                foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
                 {
                     if (projectile.Team != enemyCharacter.Team)
                     {
@@ -258,13 +252,13 @@ public static class GameUtil
             }
         }
 
-        // Die
-        data.Enemies.RemoveAll(data, static (GameData data, ref Enemy enemy) =>
+        // Remove
+        data.Stage.Enemies.RemoveAll(data, static (GameData data, ref Enemy enemy) =>
         {
             if (enemy.Remove)
             {
                 enemy.Visual.gameObject.SetActive(false);
-                data.EnemyVisualPool.Enqueue(enemy.Visual);
+                data.Stage.EnemyVisualPool.Enqueue(enemy.Visual);
                 return true;
             }
             return false;
@@ -274,7 +268,7 @@ public static class GameUtil
     public static void TickProjectiles(GameSettings settings, GameData data)
     {
         // Move projectiles
-        foreach (ref Projectile projectile in data.Projectiles.AsSpan())
+        foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
         {
             projectile.PrevPosition = projectile.CurrPosition;
             Vector3 direction = new Vector3(Mathf.Cos(projectile.Angle), 0.0f, Mathf.Sin(projectile.Angle));
@@ -282,9 +276,9 @@ public static class GameUtil
         }
 
         // Collide projectiles with characters
-        foreach (ref Character character in data.Characters.AsSpan())
+        foreach (ref Character character in data.Stage.Characters.AsSpan())
         {
-            foreach (ref Projectile projectile in data.Projectiles.AsSpan())
+            foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
             {
                 float deltaX = (character.CurrPosition.x - projectile.CurrPosition.x);
                 float deltaZ = (character.CurrPosition.z - projectile.CurrPosition.z);
@@ -303,30 +297,203 @@ public static class GameUtil
         }
 
         // Age out projectiles
-        foreach (ref Projectile projectile in data.Projectiles.AsSpan())
+        foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
         {
-            if ((data.Ticks - projectile.StartTicks) > GameConstant.ProjectileLifeticks)
+            if ((data.Stage.Ticks - projectile.StartTicks) > GameConstant.ProjectileLifeticks)
                 projectile.Remove = true;
         }
 
         // Remove projectiles
-        data.Projectiles.RemoveAll(data, static (GameData data, ref Projectile projectile) =>
+        data.Stage.Projectiles.RemoveAll(data, static (GameData data, ref Projectile projectile) =>
         {
             if (projectile.Remove)
             {
                 projectile.Visual.gameObject.SetActive(false);
-                data.ProjectileVisualPool.Enqueue(projectile.Visual);
+                data.Stage.ProjectileVisualPool.Enqueue(projectile.Visual);
                 return true;
             }
             return false;
         });
     }
 
+    public static void TickWave(GameSettings settings, GameData data)
+    {
+        int baddyCount = 0;
+        foreach (ref Character character in data.Stage.Characters.AsSpan())
+        {
+            if (character.Team == TeamType.Baddies)
+                ++baddyCount;
+        }
+
+        if (!data.Stage.InWave && data.Stage.Ticks >= data.Stage.RestCompleteTicks && data.Stage.Wave < GameConstant.MaxWaveCount)
+        {
+            data.Stage.InWave = true;
+            data.Stage.EnemySpawnsQueued += (settings.InitialEnemyCount + data.Stage.Wave * settings.EnemyCountIncreasePerWave);
+            data.Stage.NextEnemySpawnTicks = (data.Stage.Ticks + settings.WaveCompleteRestTicks);
+            data.Stage.Messages.Enqueue(data.Stage.WaveTexts[data.Stage.Wave]);
+        }
+
+        if (data.Stage.InWave && baddyCount == 0 && data.Stage.EnemySpawnsQueued == 0)
+        {
+            data.Stage.InWave = false;
+
+            ++data.Stage.Wave;
+            data.Stage.RestCompleteTicks = (data.Stage.Ticks + settings.WaveCompleteRestTicks);
+
+            if (data.Stage.Wave < GameConstant.MaxWaveCount)
+                data.Stage.Messages.Enqueue("Wave Clear");
+            else
+                data.Stage.Messages.Enqueue("You Win");
+        }
+
+        if (data.Stage.InWave && data.Stage.EnemySpawnsQueued > 0 && data.Stage.Ticks >= data.Stage.NextEnemySpawnTicks)
+        {
+            Transform spawnPoint = data.Stage.ArenaVisual.EnemySpawnPoints[data.Stage.Random.Next() % data.Stage.ArenaVisual.EnemySpawnPoints.Length];
+
+            bool isSpawnPointFree = true;
+            foreach (ref Character character in data.Stage.Characters.AsSpan())
+            {
+                float clearRadiusSquared = 0.0f;
+
+                if (character.Team == TeamType.Goodies)
+                    clearRadiusSquared = settings.SpawnClearOfGoodyRadiusSquared;
+
+                if (character.Team == TeamType.Baddies)
+                    clearRadiusSquared = settings.SpawnClearOfBaddyRadius;
+
+                Vector2 delta = new Vector2
+                {
+                    x = character.CurrPosition.x - spawnPoint.transform.position.x,
+                    y = character.CurrPosition.z - spawnPoint.transform.position.z,
+                };
+
+                if (delta.sqrMagnitude < clearRadiusSquared)
+                    isSpawnPointFree = false;
+            }
+
+            if (isSpawnPointFree)
+            {
+                data.Stage.NextEnemySpawnTicks = (data.Stage.Ticks + settings.EnemySpawnWaitTicks);
+                --data.Stage.EnemySpawnsQueued;
+                CreateEnemy(settings, data, spawnPoint.transform.position);
+            }
+        }
+    }
+
+    public static void TickMessages(GameSettings settings, GameData data)
+    {
+        if (data.Stage.Messages.Count > 0 && data.Stage.Ticks >= data.Stage.NextMessageTicks)
+        {
+            data.Stage.NextMessageTicks = data.Stage.Ticks + settings.MessageTicks;
+            data.Stage.Hud.MessageTextMesh.text = data.Stage.Messages.Dequeue();
+        }
+
+        data.Stage.Hud.MessageTextMesh.enabled = (data.Stage.Ticks < data.Stage.NextMessageTicks);
+    }
+
+    public static void TickGameState(GameSettings settings, GameData data)
+    {
+        switch (data.Stage.GameState)
+        {
+            case GameStateType.AwaitGameStart:
+                TickGameState_AwaitGameStart(settings, data);
+                break;
+
+            case GameStateType.InGame:
+                TickGameState_InGame(settings, data);
+                break;
+
+            case GameStateType.GameOver:
+                TickGameState_GameOver(settings, data);
+                break;
+
+            case GameStateType.TransitionOutOfGameOver:
+                TickGameState_TransitionFromGameOverToAwaitGameStart_Out(settings, data);
+                break;
+
+            case GameStateType.TransitionInToAwaitGameStart:
+                TickGameState_TransitionFromGameOverToAwaitGameStart_In(settings, data);
+                break;
+
+            default:
+                Debug.Log($"Unhandlded {nameof(GameStateType)} {data.Stage.GameState}");
+                break;
+        }
+    }
+
+    public static void TickGameState_AwaitGameStart(GameSettings settings, GameData data)
+    {
+        if (Input.GetKey(KeyCode.Space) &&
+                TryCreatePlayer(settings, data, data.Stage.ArenaVisual.PlayerSpawnPoint.position, out CharacterId characterId))
+        {
+            SetGameState(data, GameStateType.InGame);
+            data.Stage.Hud.GameStart.SetActive(false);
+            data.Stage.PlayerCameras[0].CharacterId = characterId;
+        }
+    }
+
+    public static void TickGameState_InGame(GameSettings settings, GameData data)
+    {
+        if (data.Stage.Players.Count == 0)
+        {
+            SetGameState(data, GameStateType.GameOver);
+            data.Stage.Hud.GameOver.SetActive(true);
+        }
+    }
+
+    public static void TickGameState_GameOver(GameSettings settings, GameData data)
+    {
+        if (data.Stage.Ticks >= settings.GameOverTicks)
+        {
+            SetGameState(data, GameStateType.TransitionOutOfGameOver);
+            data.Stage.Hud.TransitionImage.enabled = true;
+        }
+    }
+
+    public static void TickGameState_TransitionFromGameOverToAwaitGameStart_Out(GameSettings settings, GameData data)
+    {
+        if (data.Stage.Ticks >= settings.TransitionTicks / 2)
+        {
+            data.Stage.Hud.GameOver.SetActive(false);
+            data.Stage.Dispose();
+            data.Stage = new StageData(settings);
+            TransitionToAwaitGameStart(settings, data);
+        }
+    }
+
+    public static void TickGameState_TransitionFromGameOverToAwaitGameStart_In(GameSettings settings, GameData data)
+    {
+        if (data.Stage.Ticks >= settings.TransitionTicks / 2)
+        {
+            SetGameState(data, GameStateType.AwaitGameStart);
+            data.Stage.Hud.TransitionImage.enabled = false;
+            data.Stage.Hud.GameStart.SetActive(true);
+        }
+    }
+
     public static void UpdatePlayers(GameSettings settings, GameData data, float frameT)
     {
-        foreach (ref Player player in data.Players.AsSpan())
+        foreach (ref Player player in data.Stage.Players.AsSpan())
         {
-            if (data.FindCharacter(player.CharacterId, out FixedIterator<Character> iterator))
+            if (data.Stage.FindCharacter(player.CharacterId, out FixedIterator<Character> iterator))
+            {
+                ref Character character = ref iterator.Value;
+                player.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
+            }
+        }
+    }
+
+    public static void SetGameState(GameData data, GameStateType gameState)
+    {
+        data.Stage.GameState = gameState;
+        data.Stage.Ticks = 0;
+    }
+
+    public static void UpdatePlayerCameras(GameSettings settings, GameData data, float frameT)
+    {
+        foreach (ref PlayerCamera camera in data.Stage.PlayerCameras.AsSpan())
+        {
+            if (data.Stage.FindCharacter(camera.CharacterId, out FixedIterator<Character> iterator))
             {
                 ref Character character = ref iterator.Value;
 
@@ -345,7 +512,7 @@ public static class GameUtil
 
                     character.InputShoot = Input.GetMouseButton(0);
 
-                    Ray cursorRay = player.CameraVisual.Camera.ScreenPointToRay(Input.mousePosition);
+                    Ray cursorRay = camera.Visual.Camera.ScreenPointToRay(Input.mousePosition);
                     Plane cursorPlane = new Plane(Vector3.up, 0.0f);
                     if (cursorPlane.Raycast(cursorRay, out float enter))
                     {
@@ -355,30 +522,23 @@ public static class GameUtil
                     }
                 }
 
-                // Player visual
+                // Transform camera
                 {
-                    player.PlayerVisual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
-                }
+                    camera.Visual.transform.rotation = Quaternion.AngleAxis(settings.CameraAngle, Vector3.right);
 
-                // Camera visual
-                {
-                    player.CameraVisual.transform.rotation = Quaternion.AngleAxis(settings.CameraAngle, Vector3.right);
-
-                    float xDiff = (player.PlayerVisual.transform.position.x - player.CameraTargetPosition.x);
-                    float zDiff = (player.PlayerVisual.transform.position.z - player.CameraTargetPosition.z);
+                    float xDiff = (character.CurrPosition.x - camera.TargetPosition.x);
+                    float zDiff = (character.CurrPosition.z - camera.TargetPosition.z);
                     float xDist = Mathf.Abs(xDiff);
                     float zDist = Mathf.Abs(zDiff);
                     float xTravel = xDist - settings.CameraLazyRectWidth;
                     float zTravel = zDist - settings.CameraLazyRectDepth;
                     if (xDist > settings.CameraLazyRectWidth)
-                        player.CameraTargetPosition.x += xTravel * Mathf.Sign(xDiff);
+                        camera.TargetPosition.x += xTravel * Mathf.Sign(xDiff);
                     if (zDist > settings.CameraLazyRectDepth)
-                        player.CameraTargetPosition.z += zTravel * Mathf.Sign(zDiff);
+                        camera.TargetPosition.z += zTravel * Mathf.Sign(zDiff);
 
-                    Vector3 moveTo = player.CameraTargetPosition - player.CameraVisual.transform.rotation * Vector3.forward * settings.CameraDistance;
-                    player.CameraVisual.transform.position = Vector3.SmoothDamp(player.CameraVisual.transform.position, moveTo, ref player.CameraVelocity, Time.deltaTime * settings.CameraSmoothTime);
-
-                    Debug.DrawLine(player.CameraTargetPosition, player.CameraTargetPosition + Vector3.up, Color.red);
+                    Vector3 moveTo = camera.TargetPosition - camera.Visual.transform.rotation * Vector3.forward * settings.CameraDistance;
+                    camera.Visual.transform.position = Vector3.SmoothDamp(camera.Visual.transform.position, moveTo, ref camera.Velocity, Time.deltaTime * settings.CameraSmoothTime);
                 }
             }
         }
@@ -386,22 +546,82 @@ public static class GameUtil
 
     public static void UpdateEnemies(GameSettings settings, GameData data, float frameT)
     {
-        foreach (ref Enemy enemy in data.Enemies.AsSpan())
+        foreach (ref Enemy enemy in data.Stage.Enemies.AsSpan())
         {
-            if (data.FindCharacter(enemy.CharacterId, out FixedIterator<Character> iterator))
+            if (data.Stage.FindCharacter(enemy.CharacterId, out FixedIterator<Character> iterator))
             {
                 ref Character character = ref iterator.Value;
                 enemy.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
+                enemy.Visual.transform.rotation = Quaternion.AngleAxis(270.0f + character.LookAngle * Mathf.Rad2Deg, Vector3.down);
             }
         }
     }
 
     public static void UpdateProjectiles(GameSettings settings, GameData data, float frameT)
     {
-        foreach (ref Projectile projectile in data.Projectiles.AsSpan())
+        foreach (ref Projectile projectile in data.Stage.Projectiles.AsSpan())
         {
             projectile.Visual.transform.position = Vector3.Lerp(projectile.PrevPosition, projectile.CurrPosition, frameT);
             projectile.Visual.transform.rotation = Quaternion.AngleAxis(projectile.Angle * Mathf.Rad2Deg, Vector3.down);
+        }
+    }
+
+    public static void UpdateGameState_AwaitGameStart(GameSettings settings, GameData data, float frameT)
+    {
+
+    }
+
+    public static void UpdateGameState_InGame(GameSettings settings, GameData data, float frameT)
+    {
+    }
+
+    public static void UpdateGameState_GameOver(GameSettings settings, GameData data, float frameT)
+    {
+    }
+
+    public static void UpdateGameState_TransitionOutOfGameOver(GameSettings settings, GameData data, float frameT)
+    {
+        Color color = data.Stage.Hud.TransitionImage.color;
+        float t = (float)data.Stage.Ticks / (settings.TransitionTicks * 0.5f);
+        color.a = Mathf.Sin(t * Mathf.PI * 0.5f);
+        data.Stage.Hud.TransitionImage.color = color;
+    }
+
+    public static void UpdateGameState_TransitionInToAwaitGameStart(GameSettings settings, GameData data, float frameT)
+    {
+        Color color = data.Stage.Hud.TransitionImage.color;
+        float t = (float)data.Stage.Ticks / (settings.TransitionTicks * 0.5f);
+        color.a = Mathf.Sin(Mathf.PI * 0.5f + t * Mathf.PI * 0.5f);
+        data.Stage.Hud.TransitionImage.color = color;
+    }
+
+    public static void UpdateGameState(GameSettings settings, GameData data, float frameT)
+    {
+        switch (data.Stage.GameState)
+        {
+            case GameStateType.AwaitGameStart:
+                UpdateGameState_AwaitGameStart(settings, data, frameT);
+                break;
+
+            case GameStateType.InGame:
+                UpdateGameState_InGame(settings, data, frameT);
+                break;
+
+            case GameStateType.GameOver:
+                UpdateGameState_GameOver(settings, data, frameT);
+                break;
+
+            case GameStateType.TransitionOutOfGameOver:
+                UpdateGameState_TransitionOutOfGameOver(settings, data, frameT);
+                break;
+
+            case GameStateType.TransitionInToAwaitGameStart:
+                UpdateGameState_TransitionInToAwaitGameStart(settings, data, frameT);
+                break;
+
+            default:
+                Debug.Log($"Unhandlded {nameof(GameStateType)} {data.Stage.GameState}");
+                break;
         }
     }
 
@@ -412,5 +632,12 @@ public static class GameUtil
         bool success = plane.Raycast(ray, out float enter);
         cursorPosition = ray.origin + (ray.direction * enter);
         return success;
+    }
+
+    public static void TransitionToAwaitGameStart(GameSettings settings, GameData data)
+    {
+        SetGameState(data, GameStateType.TransitionInToAwaitGameStart);
+        data.Stage.Hud.GameStart.SetActive(true);
+        CreatePlayerCamera(settings, data);
     }
 }
