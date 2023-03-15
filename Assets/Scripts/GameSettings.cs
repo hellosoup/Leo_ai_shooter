@@ -22,7 +22,7 @@ public class GameSettings : ScriptableObject
     public float ProjectileRadius = 0.25f;
     public float ProjectileImpactForce = 1.0f;
     public int ProjectileDamage = 1;
-    public float ProjectileOffsetFromPlayer = 0.5f;
+    public Vector3 ProjectileOffsetFromPlayer = Vector3.zero;
     public float PlayerSnapLookAngleToMoveAngleAfterShootTime = 1.0f;
     public float PlayerShootSpreadAngle = 5.0f;
     public float PlayerRunAnimationSpeed = 0.1f;
