@@ -106,9 +106,8 @@ public struct Character
     public Vector3 CurrPosition;
     public Vector3 Velocity;
     public long LastShootTicks;
-    public float PrevMoveAngle;
-    public float CurrMoveAngle;
-    public float LookAngle;
+    public float PrevLookAngle;
+    public float CurrLookAngle;
     public float MoveAngleVelocity;
     public TeamType Team;
     public int Health;
