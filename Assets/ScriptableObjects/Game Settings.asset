@@ -22,7 +22,7 @@ MonoBehaviour:
   EnemyCharacterConfig: {fileID: 11400000, guid: 07f5bf1c2fc2846468d0817ca461e1bd, type: 2}
   CharacterRadius: 1
   CharacterRotateTime: 0.05
-  CameraDistance: 20.15
+  CameraDistance: 15
   CameraAngle: 67.5
   CameraSmoothTime: 25
   CameraLazyRectWidth: 4
