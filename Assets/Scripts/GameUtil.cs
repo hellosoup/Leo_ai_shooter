@@ -3,6 +3,9 @@ using UnityEngine;
 
 public static class GameUtil
 {
+    public static readonly int PlayerAnimatorHash_X = Animator.StringToHash("X");
+    public static readonly int PlayerAnimatorHash_Z = Animator.StringToHash("Z");
+
     public static void IncrementTicks(GameData data)
     {
         ++data.Stage.Ticks;
@@ -85,7 +88,7 @@ public static class GameUtil
         foreach (ref Character character in data.Stage.Characters.AsSpan())
         {
             character.PrevPosition = character.CurrPosition;
-            character.PrevMoveAngle = character.CurrMoveAngle;
+            character.PrevLookAngle = character.CurrLookAngle;
 
             if (character.InputMove.sqrMagnitude >= 0.005f)
             {
@@ -97,20 +100,14 @@ public static class GameUtil
             character.Velocity *= character.Config.Drag;
 
             if (character.InputLook.sqrMagnitude >= 0.005f)
-                character.LookAngle = Mathf.Atan2(character.InputLook.y, character.InputLook.x);
-
-            if (character.InputMove.sqrMagnitude >= 0.005f)
-            {
-                float targetAngle = Mathf.Atan2(character.InputMove.y, character.InputMove.x) * Mathf.Rad2Deg;
-                character.CurrMoveAngle = Mathf.Deg2Rad * Mathf.SmoothDampAngle(character.CurrMoveAngle * Mathf.Rad2Deg, targetAngle, ref character.MoveAngleVelocity, settings.CharacterRotateTime, Mathf.Infinity, GameConstant.TickTime);
-            }
+                character.CurrLookAngle = Mathf.Atan2(character.InputLook.y, character.InputLook.x);
 
             if (character.InputShoot &&
                 (data.Stage.Ticks - character.LastShootTicks) >= character.Config.ShootTicks)
             {
                 character.LastShootTicks = data.Stage.Ticks;
 
-                Vector3 look = new Vector3(Mathf.Cos(character.LookAngle), 0.0f, Mathf.Sin(character.LookAngle));
+                Vector3 look = new Vector3(Mathf.Cos(character.CurrLookAngle), 0.0f, Mathf.Sin(character.CurrLookAngle));
                 Vector3 projectilePosition = character.CurrPosition + look * settings.ProjectileOffsetFromPlayer;
                 float lookAngle = Mathf.Atan2(look.z, look.x);
 
@@ -485,6 +482,15 @@ public static class GameUtil
                 ref Character character = ref iterator.Value;
                 player.Visual.transform.position = Vector3.Lerp(character.PrevPosition, character.CurrPosition, frameT);
                 RotateTransformUsingCharacter(player.Visual.transform, character, frameT);
+
+                Vector2 forward = character.InputLook;
+                Vector2 right = new Vector2(forward.y, -forward.x);
+                float localZ = Vector2.Dot(character.Velocity.GetV2(), forward);
+                float localX = Vector2.Dot(character.Velocity.GetV2(), right);
+
+                player.Visual.Animator.SetFloat(PlayerAnimatorHash_X, localX);
+                player.Visual.Animator.SetFloat(PlayerAnimatorHash_Z, localZ);
+                player.Visual.Animator.speed = character.Velocity.magnitude * settings.PlayerRunAnimationSpeed;
             }
         }
     }
@@ -687,7 +693,9 @@ public static class GameUtil
 
     public static void RotateTransformUsingCharacter(Transform transform, in Character character, float frameT)
     {
-        float angle = Mathf.LerpAngle(character.PrevMoveAngle, character.CurrMoveAngle, frameT);
-        transform.rotation = Quaternion.AngleAxis(270.0f + angle * Mathf.Rad2Deg, Vector3.down);
+        float angle = Mathf.LerpAngle(character.PrevLookAngle * Mathf.Rad2Deg, character.CurrLookAngle * Mathf.Rad2Deg, frameT);
+        transform.rotation = Quaternion.AngleAxis(270.0f + angle, Vector3.down);
+        //float angle = Mathf.LerpAngle(character.PrevMoveAngle, character.CurrMoveAngle, frameT);
+        //transform.rotation = Quaternion.AngleAxis(270.0f + angle * Mathf.Rad2Deg, Vector3.down);
     }
 }

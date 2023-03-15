@@ -25,6 +25,7 @@ public class GameSettings : ScriptableObject
     public float ProjectileOffsetFromPlayer = 0.5f;
     public float PlayerSnapLookAngleToMoveAngleAfterShootTime = 1.0f;
     public float PlayerShootSpreadAngle = 5.0f;
+    public float PlayerRunAnimationSpeed = 0.1f;
     public float EnemyFlockRepulseMaxDistance = 3.0f;
     public float EnemyFlockRepulseMaxMagnitude = 3.0f;
     public float EnemyFlockProjectileRepulseMaxDistance = 5.0f;
