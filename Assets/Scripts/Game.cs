@@ -35,7 +35,7 @@ public class Game : MonoBehaviour
                 GameUtil.TickProjectiles(m_gameSettings, m_data);
                 GameUtil.TickExplosions(m_gameSettings, m_data);
                 GameUtil.TickMessages(m_gameSettings, m_data);
-                //GameUtil.TickWave(m_gameSettings, m_data);
+                GameUtil.TickWave(m_gameSettings, m_data);
             }
         }
 

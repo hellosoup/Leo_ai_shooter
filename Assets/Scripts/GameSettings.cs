@@ -35,6 +35,7 @@ public class GameSettings : ScriptableObject
     public float EnemyFlockProjectileRepulseMaxMagnitude = 20.0f;
     public float EnemyAvoidFoeDistance = 3.0f;
     public float EnemyAvoidFoeMaxMagnitude = 5.0f;
+    public Material[] EnemyVariantMaterials;
     public int InitialEnemyCount = 1;
     public int EnemyCountIncreasePerWave = 1;
     public float WaveCompleteRestTime = 2.0f;
