@@ -62,6 +62,7 @@ public static class GameUtil
         ref Enemy enemy = ref data.Stage.Enemies[data.Stage.Enemies.Count - 1];
         enemy.Visual = data.Stage.EnemyVisualPool.Dequeue();
         enemy.Visual.gameObject.SetActive(true);
+        enemy.Visual.Renderer.material = settings.EnemyVariantMaterials[data.Stage.Random.Next() % settings.EnemyVariantMaterials.Length];
         enemy.CharacterId = CreateCharacter(settings, data, settings.EnemyCharacterConfig, TeamType.Baddies, position);
     }
 

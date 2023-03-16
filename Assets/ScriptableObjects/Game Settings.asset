@@ -44,6 +44,12 @@ MonoBehaviour:
   EnemyFlockProjectileRepulseMaxMagnitude: 0
   EnemyAvoidFoeDistance: 0
   EnemyAvoidFoeMaxMagnitude: 5
+  EnemyVariantMaterials:
+  - {fileID: 2100000, guid: 7632c137dad80da4896583212b7d51a3, type: 2}
+  - {fileID: 2100000, guid: 60b175563b32e3d4f8c521cd34b5d6df, type: 2}
+  - {fileID: 2100000, guid: 889ee489ad56ba5418b68fd2c997f7b7, type: 2}
+  - {fileID: 2100000, guid: e664d68100e47cd4e99ddfc1d469fd8e, type: 2}
+  - {fileID: 2100000, guid: 5a7646513a3d5d44a891651d4e70aa1f, type: 2}
   InitialEnemyCount: 3
   EnemyCountIncreasePerWave: 2
   WaveCompleteRestTime: 4
