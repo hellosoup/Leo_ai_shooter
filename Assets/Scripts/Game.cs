@@ -35,17 +35,19 @@ public class Game : MonoBehaviour
                 GameUtil.TickProjectiles(m_gameSettings, m_data);
                 GameUtil.TickExplosions(m_gameSettings, m_data);
                 GameUtil.TickMessages(m_gameSettings, m_data);
-                GameUtil.TickWave(m_gameSettings, m_data);
+                //GameUtil.TickWave(m_gameSettings, m_data);
             }
         }
 
         float frameT = (m_tickTimer / GameConstant.TickTime);
         GameUtil.UpdateGameState(m_gameSettings, m_data, frameT);
         GameUtil.UpdatePlayerCameras(m_gameSettings, m_data, frameT);
+        GameUtil.UpdateWalls(m_gameSettings, m_data, frameT);
 
         if (m_data.Stage.GameState == GameStateType.InGame)
         {
             GameUtil.UpdateProjectiles(m_gameSettings, m_data, frameT);
+            GameUtil.UpdateCharacters(m_gameSettings, m_data, frameT);
             GameUtil.UpdatePlayers(m_gameSettings, m_data, frameT);
             GameUtil.UpdateEnemies(m_gameSettings, m_data, frameT);
         }

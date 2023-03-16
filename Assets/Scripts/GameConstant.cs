@@ -13,4 +13,5 @@ public static class GameConstant
     public const int MaxCharacters = (MaxPlayers + MaxEnemies);
     public const int MessagesCapacity = 16;
     public const int MaxWaveCount = 10;
+    public const int MaxWalls = 128;
 }
