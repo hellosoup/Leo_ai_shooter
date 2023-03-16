@@ -133,7 +133,7 @@ public static class GameUtil
             }
         }
 
-        // Run physics
+        // Clip characters
         {
             var span = data.Stage.Characters.AsSpan();
             for (int a = 0; a < span.Length; ++a)
@@ -167,6 +167,25 @@ public static class GameUtil
             }
         }
 
+        // Clip walls
+        foreach (ref Character character in data.Stage.Characters.AsSpan())
+        {
+            foreach (ref Wall wall in data.Stage.Walls.AsSpan())
+            {
+                Vector2 characterPosition = character.CurrPosition.GetV2();
+                Vector2 closestPointOnWall = GetClosestPointOnLineToPoint(wall.A, wall.B, characterPosition);
+                Debug.DrawLine(closestPointOnWall.GetV3(), closestPointOnWall.GetV3() + Vector3.up * 2.0f, Color.red);
+                float dist = Vector2.Distance(closestPointOnWall, characterPosition);
+                if (Vector2.Distance(closestPointOnWall, characterPosition) < settings.CharacterRadius)
+                {
+                    Vector2 norm = (characterPosition - closestPointOnWall).normalized;
+                    float penetration = settings.CharacterRadius - dist;
+                    characterPosition += norm * penetration;
+                    character.CurrPosition = characterPosition.GetV3();
+                }
+            }
+        }
+
         // Remove
         data.Stage.Characters.RemoveAll(character => character.Remove);
     }
@@ -177,7 +196,9 @@ public static class GameUtil
         {
             if (data.Stage.FindCharacter(player.CharacterId, out FixedIterator<Character> found))
             {
+                // Kill
                 ref Character playerCharacter = ref found.Value;
+
                 if (playerCharacter.Health <= 0)
                 {
                     player.Remove = true;
@@ -506,6 +527,12 @@ public static class GameUtil
         }
     }
 
+    public static void UpdateCharacters(GameSettings settings, GameData data, float frameT)
+    {
+        foreach (ref Character character in data.Stage.Characters.AsSpan())
+            DrawDebugCircle(character.CurrPosition.GetV2(), settings.CharacterRadius, Color.green);
+    }
+
     public static void UpdatePlayers(GameSettings settings, GameData data, float frameT)
     {
         foreach (ref Player player in data.Stage.Players.AsSpan())
@@ -521,8 +548,6 @@ public static class GameUtil
                 Vector2 velocity = character.Velocity.GetV2();
                 float localZ = Vector2.Dot(velocity, forward) * settings.PlayerRunAnimationAmplitude;
                 float localX = Vector2.Dot(velocity, right) * settings.PlayerRunAnimationAmplitude;
-
-                Debug.Log($"f: {forward}, v: {velocity}");
 
                 player.Visual.Animator.SetFloat(PlayerAnimatorHash_X, localX, settings.PlayeRunAnimationDampTime, Time.deltaTime);
                 player.Visual.Animator.SetFloat(PlayerAnimatorHash_Z, localZ, settings.PlayeRunAnimationDampTime, Time.deltaTime);
@@ -615,6 +640,12 @@ public static class GameUtil
         }
     }
 
+    public static void UpdateWalls(GameSettings settings, GameData data, float frameT)
+    {
+        foreach (ref Wall wall in data.Stage.Walls.AsSpan())
+            Debug.DrawLine(wall.A.GetV3(), wall.B.GetV3(), Color.yellow);
+    }
+
     public static void UpdateGameState_AwaitGameStart(GameSettings settings, GameData data, float frameT)
     {
 
@@ -705,7 +736,21 @@ public static class GameUtil
         float radii = capsuleRadius + sphereRadius;
         float radiiSq = radii * radii;
 
+        //DrawDebugCircle(capsuleA, capsuleRadius, Color.yellow);
+        //DrawDebugCircle(capsuleB, capsuleRadius, Color.yellow);
+        //DrawDebugCircle(spherePoint, sphereRadius, Color.green);
         return (distSq <= radiiSq);
+    }
+
+    public static Vector2 GetClosestPointOnLineToPoint(in Vector2 lineA, in Vector2 lineB, in Vector2 point)
+    {
+        Vector2 lb = lineB - lineA;
+        float lm = lb.magnitude;
+        Vector2 ln = lb.normalized;
+        Vector2 p = point - lineA;
+        float dot = Vector2.Dot(ln, p);
+        float clampDot = Mathf.Clamp(dot, 0.0f, lm);
+        return lineA + ln * clampDot;
     }
 
     public static Vector2 GetV2(in this Vector3 v) => new Vector2(v.x, v.z);

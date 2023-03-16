@@ -24,6 +24,7 @@ public class StageData : IDisposable
     public FixedList<Projectile> Projectiles = new FixedList<Projectile>(GameConstant.MaxProjectiles);
     public FixedList<Explosion> Explosions = new FixedList<Explosion>(GameConstant.MaxExplosions);
     public Queue<string> Messages = new Queue<string>(GameConstant.MessagesCapacity);
+    public FixedList<Wall> Walls = new FixedList<Wall>(GameConstant.MaxWalls);
 
     public GameStateType GameState;
     public long Ticks;
@@ -80,6 +81,18 @@ public class StageData : IDisposable
             var visual = UnityEngine.Object.Instantiate(settings.ExplosionVisual, Root);
             visual.gameObject.SetActive(false);
             ExplosionVisualPool.Enqueue(visual);
+        }
+
+        foreach (ref ArenaVisual.Obstacle obstacle in ArenaVisual.Obstacles.AsSpan())
+        {
+            for (int i = 0; i < obstacle.Points.Length; ++i)
+            {
+                Walls.Add(new Wall
+                {
+                    A = obstacle.Origin + obstacle.Points[i],
+                    B = obstacle.Origin + obstacle.Points[(i + 1) % obstacle.Points.Length],
+                });
+            }
         }
     }
 
@@ -165,4 +178,10 @@ public struct Message
 {
     public int Start;
     public int Count;
+}
+
+public struct Wall
+{
+    public Vector2 A;
+    public Vector2 B;
 }
